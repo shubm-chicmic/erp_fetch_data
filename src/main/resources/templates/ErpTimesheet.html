@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -9,14 +9,18 @@
         src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js">
 
 </script>
-<script>
+<script th:inline="javascript">
 
+         var token = /*[[${token}]]*/ 'default';
+            var error = /*[[${error}]]*/ 'default';
+            if(error == null){
 
 (async()=>{
 var excelData =[
 ["Date","Day","Project","Task","Time Spend","Note/ Description"]
 ];
 var day = [ "Saturday","Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+let dayIndex = 1;
 var month = [31,28,31,30,31];
 var monthname = ["JANUARY","FEBRUARY","MARCH","APRIL","MAY",]
 for (let i = 01; i <= 05; i++){
@@ -29,7 +33,7 @@ let arr = [];
 var data = await fetch("https://apigateway.erp.chicmic.in/v1/timesheet/time?entryDate=2023-0"+i+"-" + j,
 {
 headers:{
-"Authorization":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2M2NlNThhMDkzZTkxMzA2N2QwMjc2YjMiLCJlbWFpbCI6ImttYWhleTI4QGdtYWlsLmNvbSIsInRpbWUiOjE2ODQ4MzU2MTY4NTgsImlhdCI6MTY4NDgzNTYxNn0.OEcA3Oh9A02ePd_pA6gND7CLm8l0Rslh3MqtkjZn-ic"
+"Authorization": token
 }
 })
 
@@ -38,14 +42,14 @@ headers:{
 data = await data.json();
 if(data.data.length != 0){
 arr[0]= j + "-" + i + "-2023";
-arr[1] = day[(j % 7) - 0];
+arr[1] = day[((dayIndex++) % 7) - 0];
 arr[2]="MISCELLANEOUS";
 arr[3]="Training";
 arr[4]=data.data[0].timeSpent;
 arr[5]=data.data[0].notes;
 }else {
 arr[0]= j + "-" + i + "-2023";
-arr[1] = day[(j % 7) - 0];
+arr[1] = day[((dayIndex++) % 7) - 0];
 arr[2]="";
 arr[3]="";
 arr[4]="";
@@ -92,6 +96,10 @@ excelData.push(arr);
         XLSX.writeFile(workbook, "Diary_Chicmic.xlsx");
 
 })()
+
+}else {
+    alert(error);
+}
 
 </script>
 </body>

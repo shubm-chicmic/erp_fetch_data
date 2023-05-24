@@ -11,6 +11,7 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.http.*;
+import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -20,7 +21,7 @@ import org.w3c.dom.Text;
 
 import java.util.ArrayList;
 
-@RestController
+@Controller
 public class HomeController {
     @RequestMapping("/")
     public String health(){
@@ -30,7 +31,11 @@ public class HomeController {
     public String empDataFetch(@PathVariable("empCode") String empCode) throws JsonProcessingException {
 
         String url = "https://apigateway.erp.chicmic.in/v1/auth/login";
-
+        String numbers = empCode.replaceAll("[^0-9]", "");
+        System.out.println("numbers = " + numbers + "length = " + numbers.length());
+        if(numbers.length() != 3) {
+            return "redirect:/getErp?token=&error=Please Enter Your Emp Code (eg 564) after dataFetch";
+        }
         RestTemplate restTemplate = new RestTemplate();
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
@@ -47,50 +52,50 @@ public class HomeController {
         System.out.println("\u001B[44m" + responseEntityStr.getBody() + "\u001B[0m");
         System.out.println("\u001B[43m" + token + "\u001B[0m");
 
-        Workbook workBook = new XSSFWorkbook();
-        Sheet sheet = workBook.createSheet("My Sheet");
-        sheet.setColumnWidth(0, 2560);
-        sheet.setColumnWidth(1, 2560);
-        
-        Row row = sheet.createRow(0);
-       // row.createCell(0).setCellValue("Hello World");
-        String[] day = { "Saturday","Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
-        for (int i = 02; i <= 02; i++){
-            for(int j = 29; j <= 29; j++) {
-                url = "https://apigateway.erp.chicmic.in/v1/timesheet/time?entryDate=2023-" + i + "-" + j;
-                headers.clear();
-                headers.set("Authorization", token);
-                HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+//        Workbook workBook = new XSSFWorkbook();
+//        Sheet sheet = workBook.createSheet("My Sheet");
+//        sheet.setColumnWidth(0, 2560);
+//        sheet.setColumnWidth(1, 2560);
+//        sheet.
+//        Row row = sheet.createRow(0);
+//       // row.createCell(0).setCellValue("Hello World");
+//        String[] day = { "Saturday","Sunday","Monday", "Tuesday", "Wednesday", "Thursday", "Friday"};
+//        for (int i = 02; i <= 02; i++){
+//            for(int j = 29; j <= 29; j++) {
+//                url = "https://apigateway.erp.chicmic.in/v1/timesheet/time?entryDate=2023-" + i + "-" + j;
+//                headers.clear();
+//                headers.set("Authorization", token);
+//                HttpEntity<Void> requestEntity = new HttpEntity<>(headers);
+//
+//                responseEntityStr = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
+//                System.out.println("\u001B[43m" + responseEntityStr.getHeaders() + "\u001B[0m");
+//
+//                root = objectMapper.readTree(responseEntityStr.getBody());
+//                System.out.println("\u001B[43m" + root.get("data") + "\u001B[0m");
+//                System.out.println("\u001B[43m" + root.get("data").get(0).get("notes") + "\u001B[0m");
+//                String[] arr = new String[6];
+//                if(root.get("data").size() != 0){
+//                    arr[0]= j + "-" + i + "-2023";
+//                    arr[1] = day[(j % 7) - 0];
+//                    arr[2]="MISCELLANEOUS";
+//                    arr[3]="Training";
+//                    arr[4]= String.valueOf(root.get("data").get(0).get("timeSpent"));
+//                    arr[5]= String.valueOf(root.get("data").get(0).get("notes"));
+//                }else {
+//                    arr[0]= j + "-" + i + "-2023";
+//                    arr[1] = day[(j % 7) - 0];
+//                    arr[2]="";
+//                    arr[3]="";
+//                    arr[4]="";
+//                    arr[5]="";
+//                }
+//
+//
+//
+//            }
+//        }
 
-                responseEntityStr = restTemplate.exchange(url, HttpMethod.GET, requestEntity, String.class);
-                System.out.println("\u001B[43m" + responseEntityStr.getHeaders() + "\u001B[0m");
-
-                root = objectMapper.readTree(responseEntityStr.getBody());
-                System.out.println("\u001B[43m" + root.get("data") + "\u001B[0m");
-                System.out.println("\u001B[43m" + root.get("data").get(0).get("notes") + "\u001B[0m");
-                String[] arr = new String[6];
-                if(root.get("data").size() != 0){
-                    arr[0]= j + "-" + i + "-2023";
-                    arr[1] = day[(j % 7) - 0];
-                    arr[2]="MISCELLANEOUS";
-                    arr[3]="Training";
-                    arr[4]= String.valueOf(root.get("data").get(0).get("timeSpent"));
-                    arr[5]= String.valueOf(root.get("data").get(0).get("notes"));
-                }else {
-                    arr[0]= j + "-" + i + "-2023";
-                    arr[1] = day[(j % 7) - 0];
-                    arr[2]="";
-                    arr[3]="";
-                    arr[4]="";
-                    arr[5]="";
-                }
-
-
-
-            }
-        }
-
-        return "";
+        return "redirect:/getErp?token=" + token;
     }
 }
 /*
